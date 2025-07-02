@@ -22,24 +22,47 @@ st.sidebar.write("Build Better Habits. Break the Social Cycle.")
 DATA_PATH = "data/Dataset_for_Business_AssociationRuleReady.xlsx"
 df = load_data(DATA_PATH)
 
+
+# ---------- Global sidebar filters ----------
+age_min, age_max = st.sidebar.slider("Age range", 18, 60, (18, 60))
+
+gender_filter = st.sidebar.multiselect(
+    "Gender",
+    options=df["Gender"].unique().tolist(),
+    default=df["Gender"].unique().tolist()
+)
+
+# df_view will be the filtered dataframe we use everywhere
+df_view = df.query(
+    "Age >= @age_min and Age <= @age_max and Gender in @gender_filter"
+)
+
 tabs = st.tabs(["Visualization","Classification","Clustering","Assoc Rules","Regression"])
 
 # Visualization
 with tabs[0]:
     st.header("Data Visualization")
     sns.set_style("whitegrid")
-    col1,col2 = st.columns(2)
-    with col1:
-        st.subheader("Age")
-        fig,ax=plt.subplots()
-        sns.histplot(df['Age'], ax=ax)
-        st.pyplot(fig)
-    with col2:
-        st.subheader("Minutes Spent")
-        fig,ax=plt.subplots()
-        sns.kdeplot(df['Daily_Minutes_Spent'], ax=ax, shade=True)
-        st.pyplot(fig)
-    st.dataframe(df.head())
+   import plotly.express as px
+
+col1, col2 = st.columns(2)
+with col1:
+    st.subheader("Age")
+    fig = px.histogram(
+        df_view,            # <<< use the filtered data!
+        x="Age",
+        nbins=15,
+        color_discrete_sequence=["#bca43a"]
+    )
+    st.plotly_chart(fig, use_container_width=True)
+
+   with col2:
+    st.subheader("Minutes Spent")
+    fig, ax = plt.subplots()
+    sns.kdeplot(df_view['Daily_Minutes_Spent'], ax=ax, shade=True)
+    st.pyplot(fig)
+
+   st.dataframe(df_view.head())
 
 # Classification
 with tabs[1]:
