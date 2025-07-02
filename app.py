@@ -46,7 +46,7 @@ with tabs[0]:
     sns.set_style("whitegrid")
 
 col1, col2 = st.columns(2)
-with col1:
+    with col1:
         st.subheader("Age")
         fig = px.histogram(
         df_view,            # <<< use the filtered data!
@@ -56,7 +56,7 @@ with col1:
         )
         st.plotly_chart(fig, use_container_width=True)
 
-   with col2:
+    with col2:
         st.subheader("Minutes Spent")
         fig, ax = plt.subplots()
         sns.kdeplot(df_view['Daily_Minutes_Spent'], ax=ax, shade=True)
