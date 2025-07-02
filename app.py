@@ -69,10 +69,11 @@ with tabs[1]:
 # Clustering
 with tabs[2]:
     st.header("Clustering")
-    k=st.slider("k",2,10,4)
-    km=KMeans(n_clusters=k, random_state=42).fit(get_numeric_df(df))
-    df['Cluster']=km.labels_
-   st.write(df.groupby('Cluster').mean(numeric_only=True))
+    k = st.slider("k", 2, 10, 4)
+    km = KMeans(n_clusters=k, random_state=42).fit(get_numeric_df(df))
+    df["Cluster"] = km.labels_
+    st.write(df.groupby("Cluster").mean(numeric_only=True))
+
     fig,ax=plt.subplots()
     sns.scatterplot(x='Daily_Minutes_Spent',y='Monthly_Income',hue='Cluster',data=df,ax=ax)
     st.pyplot(fig)
