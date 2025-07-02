@@ -43,26 +43,28 @@ tabs = st.tabs(["Visualization","Classification","Clustering","Assoc Rules","Reg
 # Visualization
 with tabs[0]:
     st.header("Data Visualization")
+    import plotly.express as px
     sns.set_style("whitegrid")
 
-col1, col2 = st.columns(2)
+    col1, col2 = st.columns(2)
+
     with col1:
         st.subheader("Age")
         fig = px.histogram(
-        df_view,            # <<< use the filtered data!
-        x="Age",
-        nbins=15,
-        color_discrete_sequence=["#bca43a"]
+            df_view,
+            x="Age",
+            nbins=15,
+            color_discrete_sequence=["#bca43a"]
         )
         st.plotly_chart(fig, use_container_width=True)
 
     with col2:
         st.subheader("Minutes Spent")
         fig, ax = plt.subplots()
-        sns.kdeplot(df_view['Daily_Minutes_Spent'], ax=ax, shade=True)
+        sns.kdeplot(df_view["Daily_Minutes_Spent"], ax=ax, shade=True)
         st.pyplot(fig)
-        
-        st.dataframe(df_view.head())
+
+    st.dataframe(df_view.head())
 
 # Classification
 with tabs[1]:
