@@ -4,6 +4,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
+import plotly.express as px
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix, roc_curve, auc
 from sklearn.neighbors import KNeighborsClassifier
@@ -43,26 +44,25 @@ tabs = st.tabs(["Visualization","Classification","Clustering","Assoc Rules","Reg
 with tabs[0]:
     st.header("Data Visualization")
     sns.set_style("whitegrid")
-   import plotly.express as px
 
 col1, col2 = st.columns(2)
 with col1:
-    st.subheader("Age")
-    fig = px.histogram(
+        st.subheader("Age")
+        fig = px.histogram(
         df_view,            # <<< use the filtered data!
         x="Age",
         nbins=15,
         color_discrete_sequence=["#bca43a"]
-    )
-    st.plotly_chart(fig, use_container_width=True)
+        )
+        st.plotly_chart(fig, use_container_width=True)
 
    with col2:
-    st.subheader("Minutes Spent")
-    fig, ax = plt.subplots()
-    sns.kdeplot(df_view['Daily_Minutes_Spent'], ax=ax, shade=True)
-    st.pyplot(fig)
-
-   st.dataframe(df_view.head())
+        st.subheader("Minutes Spent")
+        fig, ax = plt.subplots()
+        sns.kdeplot(df_view['Daily_Minutes_Spent'], ax=ax, shade=True)
+        st.pyplot(fig)
+        
+        st.dataframe(df_view.head())
 
 # Classification
 with tabs[1]:
