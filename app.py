@@ -93,6 +93,60 @@ with tabs[0]:
         "Heavier social-media users cluster between **50–250 minutes/day** "
         "and **≤ $2 000 income**, with a small high-income heavy-use pocket."
     )
+    # ----- Pay vs Willingness box-plot -----
+st.markdown("#### How much do people say they'll pay?")
+
+fig = px.box(
+    df_view,
+    x="Willingness_to_Subscribe",
+    y="Pay_Amount",
+    color="Willingness_to_Subscribe",
+    color_discrete_sequence=["#f9d278", "#d6b55b", "#bca43a"]
+)
+st.plotly_chart(fig, use_container_width=True)
+st.caption(
+    "Median willingness to pay rises from **$0** (No) → **$2–5** (Maybe) → "
+    "**$10+** (Yes).  \n"
+    "↪ Use this to design freemium vs premium tiers."
+)
+# ----- Platform usage treemap -----
+st.markdown("#### Where do our users spend their social time?")
+
+platform_cols = [c for c in df.columns if c.startswith("Uses_")]
+plat_long = (
+    df_view[platform_cols]
+    .melt(var_name="Platform", value_name="Uses")
+    .query("Uses == 1")
+    .assign(Platform=lambda d: d["Platform"].str.replace("Uses_", ""))
+)
+
+fig = px.treemap(
+    plat_long,
+    path=["Platform"],
+    values="Uses",
+    color="Platform",
+    color_discrete_sequence=px.colors.sequential.YlOrBr
+)
+st.plotly_chart(fig, use_container_width=True)
+st.caption(
+    "Treemap shows **largest addressable audience** by platform. "
+    "FocusNest marketing can prioritise the biggest blocks first."
+)
+# ----- Correlation heat-map -----
+st.markdown("#### Numeric feature correlations")
+
+numeric_cols = df_view.select_dtypes("number").columns
+corr = df_view[numeric_cols].corr()
+
+fig, ax = plt.subplots(figsize=(6,4))
+sns.heatmap(corr, annot=False, cmap="YlOrBr", ax=ax)
+st.pyplot(fig)
+st.caption(
+    "**Dark cells** reveal strong relationships – e.g., "
+    "Daily Minutes ↔ Challenge scores.  "
+    "These are candidate variables for targeting models."
+)
+
 # Classification
 with tabs[1]:
     st.header("Classification")
