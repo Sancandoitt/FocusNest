@@ -120,11 +120,19 @@ with tabs[0]:
 # =======================================================================
 with tabs[1]:
     st.header("Classification")
-       # ---------- Hyper-parameter sliders ----------
+
+    # ---------- Hyper-parameter sliders ----------
     k_val = st.slider("K for KNN", 3, 15, 5, step=2)
     tree_depth = st.slider("Max depth for Decision Tree", 2, 10, 3)
 
-    # ---------- model objects (use slider values) ----------
+    # ---------- Data prep ----------
+    X = get_numeric_df(df)
+    y = df["Willingness_to_Subscribe"].map({"No": 0, "Maybe": 1, "Yes": 2})
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=0.3, stratify=y, random_state=42
+    )
+
+    # ---------- Model dict (uses slider values) ----------
     models = {
         "KNN": KNeighborsClassifier(n_neighbors=k_val),
         "Decision Tree": DecisionTreeClassifier(max_depth=tree_depth, random_state=42),
@@ -132,22 +140,7 @@ with tabs[1]:
         "GBRT": GradientBoostingClassifier(random_state=42),
     }
 
-    # ---------- data prep ----------
-    X = get_numeric_df(df)
-    y = df["Willingness_to_Subscribe"].map({"No": 0, "Maybe": 1, "Yes": 2})
-
-    X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.3, stratify=y, random_state=42
-    )
-
-    # ---------- model training ----------
-       models = {
-        "KNN": KNeighborsClassifier(n_neighbors=k_val),
-        "Decision Tree": DecisionTreeClassifier(max_depth=tree_depth, random_state=42),
-        "Random Forest": RandomForestClassifier(random_state=42),
-        "GBRT": GradientBoostingClassifier(random_state=42),
-    }
-
+    # ---------- Train & evaluate ----------
     results = {}
     for name, m in models.items():
         m.fit(X_train, y_train)
@@ -159,16 +152,16 @@ with tabs[1]:
             f1_score(y_test, pred, average="macro"),
         ]
 
-    res_df = pd.DataFrame(results, index=["Acc", "Prec", "Rec", "F1"]).T
-    st.dataframe(res_df)
+    st.dataframe(pd.DataFrame(results,
+                              index=["Acc", "Prec", "Rec", "F1"]).T)
 
-    # ---------- confusion matrix ----------
-    cm_choice = st.selectbox("Select model for Confusion Matrix", list(models.keys()))
+    # ---------- Confusion matrix ----------
+    cm_choice = st.selectbox("Confusion Matrix model", list(models.keys()))
     if st.button("Show Confusion Matrix"):
         cm = confusion_matrix(y_test, models[cm_choice].predict(X_test))
         st.write(cm)
 
-    # ---------- optional decision-tree diagram ----------
+    # ---------- Decision-Tree diagram (optional) ----------
     if st.checkbox("Show Decision-Tree (first 2 levels)"):
         fig, ax = plt.subplots(figsize=(6, 4))
         plot_tree(
@@ -180,7 +173,6 @@ with tabs[1]:
             fontsize=6,
         )
         st.pyplot(fig)
-
 
 # =======================================================================
 # 3. CLUSTERING TAB  (scatter & elbow – taught methods)
