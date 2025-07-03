@@ -44,7 +44,7 @@ tabs = st.tabs(
 # 1. VISUALISATION TAB  
 # =======================================================================
 with tabs[0]:
-    st.header("Data Exploration & Insights (visuals from Table 2.4)")
+    st.header("Data Exploration & Insights")
     sns.set_style("whitegrid")
 
     # KPI cards ----------------------------------------------------------
@@ -262,7 +262,7 @@ with tabs[3]:
 # 5. REGRESSION TAB  +  Decision-Tree hyper-parameter tuning
 # =======================================================================
 with tabs[4]:
-    st.header("Regression Models (with Decision-Tree tuning)")
+    st.header("Regression Models")
 
     # ---------- choose target ----------
     target_choices = ["Pay_Amount", "Daily_Minutes_Spent"]
