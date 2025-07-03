@@ -130,22 +130,22 @@ with tabs[1]:
     k_val = st.slider("K for KNN", 3, 15, 5, step=2)
     tree_depth = st.slider("Max depth for Decision Tree", 2, 10, 3)
 
-         # ---------- Data prep ----------
-        X = get_numeric_df(df)
+    # ---------- Data prep ----------
+    X = get_numeric_df(df)
 
-        # tidy & map target to 0/1/2, then drop any unmapped rows
-        y = (
-            df["willingness_to_subscribe"]
-            .astype(str).str.strip().str.lower()          # clean text
-            .map({"no": 0, "maybe": 1, "yes": 2})
-        )
-        mask = y.notna()
-        X = X.loc[mask]
-        y = y.loc[mask]
+    # tidy & map target to 0/1/2, then drop any unmapped rows
+    y = (
+        df["willingness_to_subscribe"]
+        .astype(str).str.strip().str.lower()          # clean text
+        .map({"no": 0, "maybe": 1, "yes": 2})
+    )
+    mask = y.notna()
+    X = X.loc[mask]
+    y = y.loc[mask]
 
-        X_train, X_test, y_train, y_test = train_test_split(
-            X, y, test_size=0.3, stratify=y, random_state=42
-        )
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=0.3, stratify=y, random_state=42
+    )
 
 
     models = {
