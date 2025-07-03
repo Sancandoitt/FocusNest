@@ -18,7 +18,7 @@ from mlxtend.frequent_patterns import apriori, association_rules
 import networkx as nx
 import streamlit as st
 
-from utils import load_data, get_numeric_df   # tidy_column_names is used inside utils
+from utils import load_data, get_numeric_df, tidy_column_names
 
 # ----------------------------------------------------------------------
 # Basic page config
