@@ -339,7 +339,7 @@ with tabs[4]:
         perf_rows.append({
             "Model": mname,
             "R²":   round(r2_score(y_te, pred), 3),
-            "RMSE": round(mean_squared_error(y_te, pred, squared=False), 2)  # √MSE
+            "RMSE": round(np.sqrt(mean_squared_error(y_te, pred)), 2)
         })
         ext_models[mname] = m   # keep fitted
 
