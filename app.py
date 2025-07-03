@@ -109,29 +109,38 @@ st.caption(
     "**$10+** (Yes).  \n"
     "↪ Use this to design freemium vs premium tiers."
 )
-# ----- Platform usage treemap -----
+# ----- Platform usage treemap (clean counts) -----
 st.markdown("#### Where do our users spend their social time?")
 
 platform_cols = [c for c in df.columns if c.startswith("Uses_")]
-plat_long = (
+
+# 1️⃣ COUNT how many users tick each platform
+plat_counts = (
     df_view[platform_cols]
-    .melt(var_name="Platform", value_name="Uses")
-    .query("Uses == 1")
-    .assign(Platform=lambda d: d["Platform"].str.replace("Uses_", ""))
+    .sum()                                          # sums the 1-values
+    .rename(lambda c: c.replace("Uses_", ""))       # tidy names
+    .reset_index(name="UserCount")                  # into a dataframe
+    .rename(columns={"index": "Platform"})
 )
 
+# 2️⃣ PLOT the treemap – area shows user share, colour shows count
 fig = px.treemap(
-    plat_long,
+    plat_counts,
     path=["Platform"],
-    values="Uses",
-    color="Platform",
-    color_discrete_sequence=px.colors.sequential.YlOrBr
+    values="UserCount",
+    color="UserCount",
+    color_continuous_scale="YlOrBr",
+    title="Platform share among current filter"
 )
+fig.update_traces(textinfo="label+percent entry")   # show % on each block
 st.plotly_chart(fig, use_container_width=True)
+
 st.caption(
-    "Treemap shows **largest addressable audience** by platform. "
-    "FocusNest marketing can prioritise the biggest blocks first."
+    "Treemap recalculates live with the sidebar filters. "
+    "It reveals which platforms deliver the biggest audience slice "
+    "so FocusNest can prioritise acquisition spend."
 )
+
 # ----- Correlation heat-map -----
 st.markdown("#### Numeric feature correlations")
 
