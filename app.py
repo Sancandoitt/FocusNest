@@ -308,6 +308,89 @@ with tabs[4]:
         }
 
     st.dataframe(pd.DataFrame(results).T.style.background_gradient(cmap="YlOrBr"))
+      # ---------- EXTRA: one-hot models + manual What-If -------------
+    st.subheader("🔍 Extended Regression (one-hot + manual What-If)")
+
+    # 1️⃣  one-hot encode all categoricals
+    X_catfree = df_view.drop(columns=[target])          # remove chosen target
+    X_encoded = pd.get_dummies(X_catfree, drop_first=True)
+    y_encoded = df_view[target]
+
+    X_tr, X_te, y_tr, y_te = train_test_split(
+        X_encoded, y_encoded, test_size=0.3, random_state=42
+    )
+
+    from sklearn.tree import DecisionTreeRegressor
+    from sklearn.metrics import r2_score, mean_squared_error
+    from sklearn.preprocessing import PolynomialFeatures
+
+    ext_models = {
+        "Linear":       LinearRegression(),
+        "Ridge":        Ridge(),
+        "Lasso":        Lasso(),
+        "DecisionTree": DecisionTreeRegressor(random_state=42)
+    }
+
+    # 2️⃣  fit & score
+    perf_rows = []
+    for mname, m in ext_models.items():
+        m.fit(X_tr, y_tr)
+        pred = m.predict(X_te)
+        perf_rows.append({
+            "Model": mname,
+            "R²":   round(r2_score(y_te, pred), 3),
+            "RMSE": round(mean_squared_error(y_te, pred, squared=False), 2)  # √MSE
+        })
+        ext_models[mname] = m   # keep fitted
+
+
+    perf_df = pd.DataFrame(perf_rows).set_index("Model")
+    st.dataframe(perf_df.style.background_gradient(cmap="YlOrBr"))
+
+    # 3️⃣  Manual What-If inputs for five key variables
+    key_inputs = [
+        "age", "monthly_income", "daily_minutes_spent",
+        "willingness", "main_challenge"
+    ]
+    st.markdown("#### Manual What-If (enter 5 key variables)")
+    user_vals = {}
+    with st.form("manual_pred_form"):
+        for col in X_catfree.columns:
+            if col in key_inputs:
+                if str(X_catfree[col].dtype).startswith(("float", "int")):
+                    user_vals[col] = st.number_input(
+                        col, value=float(df_view[col].mean()), format="%.2f"
+                    )
+                else:
+                    opts = sorted(df_view[col].dropna().unique().astype(str))
+                    user_vals[col] = st.selectbox(col, opts, key=f"man_{col}")
+        submit_pred = st.form_submit_button("Predict")
+
+    if submit_pred:
+        # assemble one row with user inputs + defaults
+        row = {}
+        for c in X_catfree.columns:
+            if c in user_vals:
+                row[c] = user_vals[c]
+            elif str(X_catfree[c].dtype).startswith(("float", "int")):
+                row[c] = float(df_view[c].mean())
+            else:
+                row[c] = df_view[c].mode().iloc[0]
+        row_df  = pd.DataFrame([row])
+        row_enc = pd.get_dummies(row_df, drop_first=True)
+        row_enc = row_enc.reindex(columns=X_encoded.columns, fill_value=0)
+
+        preds = {m: round(ext_models[m].predict(row_enc)[0], 2)
+                 for m in ext_models}
+
+        out_df = perf_df.copy()
+        out_df["Manual Pred"] = pd.Series(preds)
+        st.dataframe(out_df)
+
+        # bar chart of manual predictions
+        chart_df = pd.DataFrame(preds, index=["Prediction"]).T
+        st.bar_chart(chart_df)
+
 
     best_name = max(results, key=lambda k: results[k]["R²"])
     best_pred = preds[best_name]
