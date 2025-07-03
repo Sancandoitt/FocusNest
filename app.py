@@ -41,7 +41,7 @@ tabs = st.tabs(
 )
 
 # =======================================================================
-# 1. VISUALISATION TAB  (only methods taught – Table 2.4)
+# 1. VISUALISATION TAB  
 # =======================================================================
 with tabs[0]:
     st.header("Data Exploration & Insights (visuals from Table 2.4)")
@@ -176,7 +176,7 @@ with tabs[1]:
 
 
 # =======================================================================
-# 3. CLUSTERING TAB  (scatter & elbow – taught methods)
+# 3. CLUSTERING TAB  
 # =======================================================================
 with tabs[2]:
     st.header("Clustering (K-means)")
