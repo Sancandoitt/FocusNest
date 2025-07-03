@@ -309,7 +309,7 @@ with tabs[4]:
 
     st.dataframe(pd.DataFrame(results).T.style.background_gradient(cmap="YlOrBr"))
       # ---------- EXTRA: one-hot models + manual What-If -------------
-    st.subheader("🔍 Extended Regression (one-hot + manual What-If)")
+    st.subheader("🔍 Extended Regression")
 
     # 1️⃣  one-hot encode all categoricals
     X_catfree = df_view.drop(columns=[target])          # remove chosen target
