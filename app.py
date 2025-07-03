@@ -30,7 +30,6 @@ st.sidebar.title("FocusNest")
 st.sidebar.write("Build Better Habits. Break the Social Cycle.")
 
 # ----------------------------------------------------------------------
-# ---------------------------------------------------------------
 # 📂  Data Source selector  (built-in sample  OR  user upload)
 # ---------------------------------------------------------------
 uploaded = st.sidebar.file_uploader(
