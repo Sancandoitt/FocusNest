@@ -265,7 +265,9 @@ with tabs[4]:
     st.header("Regression Models")
 
     # ---------- choose target ----------
-    target_choices = ["Pay_Amount", "Daily_Minutes_Spent"]
+  target_choices = ["pay_amount",
+                  "daily_minutes_spent",
+                  "sleep_quality"]          # ← new
     target = st.selectbox("Select target variable", target_choices)
 
     # ---------- feature matrix ----------
