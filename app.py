@@ -54,7 +54,6 @@ kpi1.metric("Avg Daily Minutes", f"{avg_minutes:,.1f}")
 kpi2.metric("% Heavy Users (>180 min)", f"{heavy_pct:.1f}%")
 kpi3.metric("Avg Monthly Income", f"${avg_income:,.0f}")
 
-    import plotly.express as px
     sns.set_style("whitegrid")
 
     col1, col2 = st.columns(2)
