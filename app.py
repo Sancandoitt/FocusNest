@@ -189,6 +189,19 @@ with tabs[1]:
         ax.set_xlabel("Predicted"); ax.set_ylabel("Actual")
         st.pyplot(fig)
 
+        # ---------- Download predictions CSV ----------
+        # build a DataFrame with actual + selected-model prediction
+        pred_df = X_test.copy()
+        pred_df["actual"] = y_test.values
+        pred_df["predicted"] = models[cm_choice].predict(X_test)
+        csv = pred_df.to_csv(index=False).encode("utf-8")
+        st.download_button(
+            label=f"Download {cm_choice} predictions (CSV)",
+            data=csv,
+            file_name=f"{cm_choice.lower()}_predictions.csv",
+            mime="text/csv",
+        )
+
 
 # =====================================================================
 # 3. CLUSTERING TAB
@@ -313,3 +326,17 @@ with tabs[4]:
     ax.set_xlabel("Predicted"); ax.set_ylabel("Residuals")
     st.pyplot(fig)
     st.caption("Residual plot checks bias/heteroscedasticity.")
+
+    # ---------- Download regression predictions ----------
+    reg_df = pd.DataFrame({
+        "actual": yreg,
+        "predicted": best_pred,
+    })
+    csv_reg = reg_df.to_csv(index=False).encode("utf-8")
+    st.download_button(
+        label=f"Download {best_name} predictions (CSV)",
+        data=csv_reg,
+        file_name=f"{best_name.lower().replace(' ', '_')}_predictions.csv",
+        mime="text/csv",
+    )
+
