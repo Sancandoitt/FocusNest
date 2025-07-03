@@ -118,9 +118,27 @@ with tabs[0]:
     # Correlation heat-map --------------------------------------------
     st.markdown("#### Correlation Heat-map")
     corr = df_view.select_dtypes("number").corr()
-    fig, ax = plt.subplots(figsize=(6, 4))
-    sns.heatmap(corr, cmap="YlOrBr", ax=ax)
-    st.pyplot(fig)
+# --- prettier triangular heat-map + top-10 table ---
+mask = np.triu(np.ones_like(corr, dtype=bool))      # hide upper triangle
+fig, ax = plt.subplots(figsize=(6,4))
+sns.heatmap(corr, mask=mask, cmap="YlOrBr", vmax=1, vmin=-1,
+            center=0, linewidths=.4, cbar_kws={"shrink": .6}, ax=ax)
+st.pyplot(fig)
+
+# Top-10 strongest (absolute) correlations
+abs_pairs = (
+    corr.abs()
+        .where(~mask)             # only lower triangle values
+        .stack()
+        .sort_values(ascending=False)
+        .head(10)
+        .reset_index()
+        .rename(columns={"level_0":"Feature 1","level_1":"Feature 2",0:"|r|"})
+        .round(2)
+)
+st.markdown("**Top-10 absolute correlations**")
+st.dataframe(abs_pairs)
+
 
 # =====================================================================
 # 2. CLASSIFICATION TAB
