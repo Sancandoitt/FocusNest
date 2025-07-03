@@ -204,21 +204,37 @@ with tabs[2]:
     st.plotly_chart(fig, use_container_width=True)
 
 # =======================================================================
-# 4. ASSOCIATION RULES TAB  (table + optional network)
+# 4. ASSOCIATION RULES TAB
 # =======================================================================
 with tabs[3]:
     st.header("Association Rule Mining")
-    binary_cols = [c for c in df.columns if set(df[c].unique()) <= {0, 1}]
-    columns_sel = st.multiselect("Binary columns (min 2)", binary_cols, default=binary_cols[:2])
-    support_val = st.slider("min_support", 0.01, 0.2, 0.05)
-      conf_val = st.slider("min_confidence", 0.1, 0.9, 0.3, 0.05)
 
+    binary_cols = [c for c in df.columns if set(df[c].unique()) <= {0, 1}]
+    columns_sel = st.multiselect(
+        "Binary columns (min 2)",
+        binary_cols,
+        default=binary_cols[:2]
+    )
+
+    support_val = st.slider("min_support", 0.01, 0.2, 0.05, 0.01)
+    conf_val    = st.slider("min_confidence", 0.10, 0.90, 0.30, 0.05)
 
     if len(columns_sel) >= 2:
-        frequent = apriori(df[columns_sel], min_support=support_val, use_colnames=True)
-              rules = association_rules(frequent, metric="confidence", min_threshold=conf_val)
-        st.dataframe(rules[["antecedents", "consequents", "support",
-                            "confidence", "lift"]].head(10))
+        frequent = apriori(
+            df[columns_sel],
+            min_support=support_val,
+            use_colnames=True
+        )
+        rules = association_rules(
+            frequent,
+            metric="confidence",
+            min_threshold=conf_val
+        )
+
+        st.dataframe(
+            rules[["antecedents", "consequents", "support",
+                   "confidence", "lift"]].head(10)
+        )
 
         # optional simple network
         import networkx as nx
@@ -231,9 +247,16 @@ with tabs[3]:
                         G.add_edge(a, c, weight=r["lift"])
             fig, ax = plt.subplots(figsize=(6, 4))
             pos = nx.spring_layout(G, seed=42, k=0.5)
-            nx.draw_networkx(G, pos, ax=ax, node_color="#ffda66",
-                             node_size=500, font_size=6, edge_color="#9e8b3a")
+            nx.draw_networkx(
+                G, pos, ax=ax,
+                node_color="#ffda66",
+                node_size=500,
+                font_size=6,
+                edge_color="#9e8b3a"
+            )
             st.pyplot(fig)
+# =======================================================================
+
 
 # =======================================================================
 # 5. REGRESSION TAB  +  Decision-Tree hyper-parameter tuning
