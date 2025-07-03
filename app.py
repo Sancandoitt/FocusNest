@@ -166,16 +166,29 @@ with tabs[1]:
 
     st.dataframe(pd.DataFrame(results, index=["Acc", "Prec", "Rec", "F1"]).T)
 
-    cm_choice = st.selectbox("Confusion Matrix model", list(models.keys()))
+      # ---------- Confusion matrix (table + heat-map) ----------
+    cm_choice = st.selectbox("Confusion-Matrix model", list(models.keys()))
     if st.button("Show Confusion Matrix"):
         cm = confusion_matrix(y_test, models[cm_choice].predict(X_test))
-        st.write(cm)
 
-    if st.checkbox("Show Decision-Tree (first 2 levels)"):
-        fig, ax = plt.subplots(figsize=(6, 4))
-        plot_tree(models["Decision Tree"], feature_names=X.columns,
-                  max_depth=2, filled=True, ax=ax, fontsize=6)
+        # 1️⃣ tidy table --------------------------------------------------
+        classes = ["No", "Maybe", "Yes"]
+        cm_df = pd.DataFrame(
+            cm,
+            index=[f"Actual {c}" for c in classes],
+            columns=[f"Pred {c}" for c in classes]
+        )
+        st.subheader("Confusion-Matrix Table")
+        st.dataframe(cm_df.style.background_gradient(cmap="YlOrBr"))
+
+        # 2️⃣ heat-map ----------------------------------------------------
+        st.subheader("Confusion-Matrix Heat-map")
+        fig, ax = plt.subplots()
+        sns.heatmap(cm_df, annot=True, fmt="d", cmap="YlOrBr", ax=ax,
+                    cbar=False, linewidths=.5, linecolor="white")
+        ax.set_xlabel("Predicted"); ax.set_ylabel("Actual")
         st.pyplot(fig)
+
 
 # =====================================================================
 # 3. CLUSTERING TAB
