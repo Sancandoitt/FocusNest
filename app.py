@@ -121,10 +121,7 @@ with tabs[0]:
         c for c in df_view.select_dtypes("number").columns
         if df_view[c].nunique() > 10
     ]
-    # ensure the current regression/target is included if numeric
-    if target in df_view.select_dtypes("number") and target not in cont_cols:
-        cont_cols.append(target)
-
+ 
     corr = df_view[cont_cols].corr()
 
     # mask upper triangle for clarity
