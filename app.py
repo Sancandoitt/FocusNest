@@ -120,6 +120,9 @@ with tabs[0]:
 # =======================================================================
 with tabs[1]:
     st.header("Classification")
+    # ---------- Hyper-parameter sliders ----------
+    k_val = st.slider("K for KNN", 3, 15, 5, step=2)
+    tree_depth = st.slider("Max depth for Decision Tree", 2, 10, 3)
 
     # ---------- data prep ----------
     X = get_numeric_df(df)
@@ -130,11 +133,11 @@ with tabs[1]:
     )
 
     # ---------- model training ----------
-    models = {
-        "KNN": KNeighborsClassifier(),
-        "Decision Tree": DecisionTreeClassifier(),
-        "Random Forest": RandomForestClassifier(),
-        "GBRT": GradientBoostingClassifier(),
+       models = {
+        "KNN": KNeighborsClassifier(n_neighbors=k_val),
+        "Decision Tree": DecisionTreeClassifier(max_depth=tree_depth, random_state=42),
+        "Random Forest": RandomForestClassifier(random_state=42),
+        "GBRT": GradientBoostingClassifier(random_state=42),
     }
 
     results = {}
@@ -207,10 +210,12 @@ with tabs[3]:
     binary_cols = [c for c in df.columns if set(df[c].unique()) <= {0, 1}]
     columns_sel = st.multiselect("Binary columns (min 2)", binary_cols, default=binary_cols[:2])
     support_val = st.slider("min_support", 0.01, 0.2, 0.05)
+      conf_val = st.slider("min_confidence", 0.1, 0.9, 0.3, 0.05)
+
 
     if len(columns_sel) >= 2:
         frequent = apriori(df[columns_sel], min_support=support_val, use_colnames=True)
-        rules = association_rules(frequent, metric="confidence", min_threshold=0.3)
+              rules = association_rules(frequent, metric="confidence", min_threshold=conf_val)
         st.dataframe(rules[["antecedents", "consequents", "support",
                             "confidence", "lift"]].head(10))
 
