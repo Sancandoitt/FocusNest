@@ -120,18 +120,23 @@ with tabs[0]:
 # =======================================================================
 with tabs[1]:
     st.header("Classification")
+
+    # ---------- data prep ----------
     X = get_numeric_df(df)
     y = df["Willingness_to_Subscribe"].map({"No": 0, "Maybe": 1, "Yes": 2})
+
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.3, stratify=y, random_state=42
     )
 
+    # ---------- model training ----------
     models = {
         "KNN": KNeighborsClassifier(),
         "Decision Tree": DecisionTreeClassifier(),
         "Random Forest": RandomForestClassifier(),
         "GBRT": GradientBoostingClassifier(),
     }
+
     results = {}
     for name, m in models.items():
         m.fit(X_train, y_train)
@@ -143,19 +148,28 @@ with tabs[1]:
             f1_score(y_test, pred, average="macro"),
         ]
 
-    st.dataframe(pd.DataFrame(results, index=["Acc", "Prec", "Rec", "F1"]).T)
+    res_df = pd.DataFrame(results, index=["Acc", "Prec", "Rec", "F1"]).T
+    st.dataframe(res_df)
 
-    # Confusion matrix + optional Decision-tree plot
-    choice = st.selectbox("Confusion Matrix model", list(models.keys()))
+    # ---------- confusion matrix ----------
+    cm_choice = st.selectbox("Select model for Confusion Matrix", list(models.keys()))
     if st.button("Show Confusion Matrix"):
-        cm = confusion_matrix(y_test, models[choice].predict(X_test))
+        cm = confusion_matrix(y_test, models[cm_choice].predict(X_test))
         st.write(cm)
 
-     if st.checkbox("Show Decision-Tree (first 2 levels)"):
-         fig, ax = plt.subplots(figsize=(6, 4))
-         plot_tree(models["Decision Tree"], max_depth=2,
-                   feature_names=X.columns, filled=True, ax=ax, fontsize=6)
-         st.pyplot(fig)
+    # ---------- optional decision-tree diagram ----------
+    if st.checkbox("Show Decision-Tree (first 2 levels)"):
+        fig, ax = plt.subplots(figsize=(6, 4))
+        plot_tree(
+            models["Decision Tree"],
+            feature_names=X.columns,
+            max_depth=2,
+            filled=True,
+            ax=ax,
+            fontsize=6,
+        )
+        st.pyplot(fig)
+
 
 # =======================================================================
 # 3. CLUSTERING TAB  (scatter & elbow – taught methods)
