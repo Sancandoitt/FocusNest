@@ -19,4 +19,4 @@ def load_data(path):
     return pd.read_excel(path)
 
 def get_numeric_df(df):
-    return df.select_dtypes(include=[np.number])
+    return df.select_dtypes("number")
