@@ -230,16 +230,73 @@ with tabs[3]:
             st.pyplot(fig)
 
 # =======================================================================
-# 5. REGRESSION TAB  (simple comparison)
+# 5. REGRESSION TAB  (Linear · Ridge · Lasso · Decision-Tree)
 # =======================================================================
 with tabs[4]:
-    st.header("Regression (predict Pay_Amount)")
-    target = "Pay_Amount"
-    Xreg = get_numeric_df(df).drop(columns=[target])
-    yreg = df[target]
-    regs = {"Linear": LinearRegression(), "Ridge": Ridge(), "Lasso": Lasso()}
-    res = {}
-    for name, model in regs.items():
+    st.header("Regression Models")
+
+    # ---------- choose target ----------
+    target_choices = ["Pay_Amount", "Daily_Minutes_Spent"]
+    target = st.selectbox("Select target variable", target_choices)
+
+    # ---------- build X / y ----------
+    numeric_df = get_numeric_df(df)
+    Xreg = numeric_df.drop(columns=[target])
+    yreg = numeric_df[target]
+
+    # ---------- models ----------
+    from sklearn.tree import DecisionTreeRegressor
+    models = {
+        "Linear"       : LinearRegression(),
+        "Ridge"        : Ridge(),
+        "Lasso"        : Lasso(),
+        "DecisionTree" : DecisionTreeRegressor(random_state=42),
+    }
+
+    results = {}
+    preds   = {}
+    for name, model in models.items():
         model.fit(Xreg, yreg)
-        res[name] = model.score(Xreg, yreg)
-    st.dataframe(pd.Series(res, name="R²").to_frame())
+        pred = model.predict(Xreg)
+        preds[name] = pred
+        results[name] = {
+            "R²"  : model.score(Xreg, yreg),
+            "RMSE": np.sqrt(((pred - yreg) ** 2).mean()),
+        }
+
+    # ---------- show metrics table ----------
+    metrics_df = (pd.DataFrame(results)
+                  .T[["R²", "RMSE"]]
+                  .style.background_gradient(cmap="YlOrBr", axis=0))
+    st.dataframe(metrics_df)
+
+    # ---------- pick best model on R² ----------
+    best_model_name = max(results, key=lambda k: results[k]["R²"])
+    best_pred       = preds[best_model_name]
+
+    st.markdown(f"##### Best model on R²: **{best_model_name}**")
+
+    # ---------- Actual vs Predicted scatter ----------
+    fig = px.scatter(
+        x=yreg,
+        y=best_pred,
+        labels={"x": "Actual", "y": "Predicted"},
+        title=f"Actual vs Predicted — {best_model_name}"
+    )
+    fig.add_shape(type="line", x0=yreg.min(), x1=yreg.max(),
+                  y0=yreg.min(), y1=yreg.max(),
+                  line=dict(dash="dash", color="#bca43a"))
+    st.plotly_chart(fig, use_container_width=True)
+
+    # ---------- Residual plot ----------
+    fig, ax = plt.subplots()
+    sns.residplot(x=best_pred, y=yreg - best_pred, lowess=True,
+                  color="#bca43a", ax=ax)
+    ax.set_xlabel("Predicted")
+    ax.set_ylabel("Residuals")
+    st.pyplot(fig)
+    st.caption(
+        "Residual plot helps spot heteroscedasticity or model bias. "
+        "Decision-Tree often bends to local patterns; linear family shows global trend."
+    )
+# =======================================================================
