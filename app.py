@@ -230,32 +230,49 @@ with tabs[3]:
             st.pyplot(fig)
 
 # =======================================================================
-# 5. REGRESSION TAB  (Linear · Ridge · Lasso · Decision-Tree)
+# 5. REGRESSION TAB  +  Decision-Tree hyper-parameter tuning
 # =======================================================================
 with tabs[4]:
-    st.header("Regression Models")
+    st.header("Regression Models (with Decision-Tree tuning)")
 
     # ---------- choose target ----------
     target_choices = ["Pay_Amount", "Daily_Minutes_Spent"]
     target = st.selectbox("Select target variable", target_choices)
 
-    # ---------- build X / y ----------
+    # ---------- feature matrix ----------
     numeric_df = get_numeric_df(df)
     Xreg = numeric_df.drop(columns=[target])
     yreg = numeric_df[target]
 
-    # ---------- models ----------
+    # ---------- base models ----------
     from sklearn.tree import DecisionTreeRegressor
-    models = {
-        "Linear"       : LinearRegression(),
-        "Ridge"        : Ridge(),
-        "Lasso"        : Lasso(),
-        "DecisionTree" : DecisionTreeRegressor(random_state=42),
+    from sklearn.model_selection import cross_val_score
+
+    base_models = {
+        "Linear" : LinearRegression(),
+        "Ridge"  : Ridge(),
+        "Lasso"  : Lasso(),
     }
 
-    results = {}
-    preds   = {}
-    for name, model in models.items():
+    # ---------- tune Decision-Tree on max_depth ----------
+    depths = list(range(2, 9))
+    cv_scores = []
+    for d in depths:
+        dt = DecisionTreeRegressor(max_depth=d, random_state=42)
+        score = cross_val_score(dt, Xreg, yreg, cv=5, scoring="r2").mean()
+        cv_scores.append(score)
+
+    depth_df = pd.DataFrame({"max_depth": depths, "CV R²": cv_scores})
+    best_depth = depth_df.loc[depth_df["CV R²"].idxmax(), "max_depth"]
+    st.dataframe(depth_df.style.background_gradient(cmap="YlOrBr"), height=200)
+    st.caption(f"Best depth = **{int(best_depth)}** via 5-fold CV (prevents over-fitting).")
+
+    tuned_tree = DecisionTreeRegressor(max_depth=int(best_depth), random_state=42)
+    base_models[f"DecisionTree (depth={int(best_depth)})"] = tuned_tree
+
+    # ---------- fit & evaluate ----------
+    results, preds = {}, {}
+    for name, model in base_models.items():
         model.fit(Xreg, yreg)
         pred = model.predict(Xreg)
         preds[name] = pred
@@ -264,28 +281,25 @@ with tabs[4]:
             "RMSE": np.sqrt(((pred - yreg) ** 2).mean()),
         }
 
-    # ---------- show metrics table ----------
-    metrics_df = (pd.DataFrame(results)
-                  .T[["R²", "RMSE"]]
-                  .style.background_gradient(cmap="YlOrBr", axis=0))
-    st.dataframe(metrics_df)
+    st.markdown("#### Model Metrics")
+    st.dataframe(pd.DataFrame(results).T.style.background_gradient(cmap="YlOrBr"))
 
-    # ---------- pick best model on R² ----------
+    # ---------- choose best on R² ----------
     best_model_name = max(results, key=lambda k: results[k]["R²"])
-    best_pred       = preds[best_model_name]
-
-    st.markdown(f"##### Best model on R²: **{best_model_name}**")
+    best_pred = preds[best_model_name]
+    st.markdown(f"##### Best model: **{best_model_name}**")
 
     # ---------- Actual vs Predicted scatter ----------
     fig = px.scatter(
         x=yreg,
         y=best_pred,
         labels={"x": "Actual", "y": "Predicted"},
-        title=f"Actual vs Predicted — {best_model_name}"
+        title=f"Actual vs Predicted — {best_model_name}",
+        color_discrete_sequence=["#bca43a"],
     )
     fig.add_shape(type="line", x0=yreg.min(), x1=yreg.max(),
                   y0=yreg.min(), y1=yreg.max(),
-                  line=dict(dash="dash", color="#bca43a"))
+                  line=dict(dash="dash", color="#7e7309"))
     st.plotly_chart(fig, use_container_width=True)
 
     # ---------- Residual plot ----------
@@ -296,7 +310,7 @@ with tabs[4]:
     ax.set_ylabel("Residuals")
     st.pyplot(fig)
     st.caption(
-        "Residual plot helps spot heteroscedasticity or model bias. "
-        "Decision-Tree often bends to local patterns; linear family shows global trend."
+        "Residual plot reveals spread & bias; the tuned tree balances variance "
+        "better than an un-pruned tree would."
     )
 # =======================================================================
