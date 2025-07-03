@@ -115,44 +115,45 @@ with tabs[0]:
                  labels={"x": "Platform", "y": "Users"})
     st.plotly_chart(fig, use_container_width=True)
 
-    # ----- Continuous-only correlation heat-map -----------------------
-    # define “continuous”: numeric with > 10 unique values
+    # ----- Correlation clustermap (continuous vars) -------------------
     cont_cols = [
         c for c in df_view.select_dtypes("number").columns
         if df_view[c].nunique() > 10
     ]
- 
+
     corr = df_view[cont_cols].corr()
 
-    # mask upper triangle for clarity
-    mask = np.triu(np.ones_like(corr, dtype=bool))
-
-    st.markdown("#### Correlation Heat-map (continuous vars)")
-    fig, ax = plt.subplots(figsize=(5, 4))
-    sns.heatmap(
-        corr, mask=mask, cmap="YlOrBr", vmin=-1, vmax=1,
-        linewidths=.4, cbar_kws={"shrink": .6}, ax=ax
+    st.markdown("#### Correlation Clustermap (continuous features)")
+    # seaborn.clustermap returns its own figure; we pass it to Streamlit
+    cg = sns.clustermap(
+        corr,
+        cmap="YlOrBr",
+        vmin=-1, vmax=1,
+        linewidths=.4,
+        figsize=(6, 6),
+        dendrogram_ratio=.1,           # shrink dendrograms
+        cbar_pos=(0.02, .8, .03, .18)  # left, bottom, width, height
     )
-    st.pyplot(fig)
+    st.pyplot(cg.fig)
 
-    # Top-5 absolute correlations (excluding self-pairs)
+    # Top-5 absolute correlations after clustering (for quick reference)
+    mask = np.triu(np.ones_like(corr, dtype=bool))
     top5 = (
         corr.abs()
-            .where(~mask)            # lower triangle
-            .stack()
-            .sort_values(ascending=False)
-            .head(5)
-            .reset_index()
-            .rename(columns={
-                "level_0": "Feature 1",
-                "level_1": "Feature 2",
-                0: "|r|"
-            })
-            .round(2)
+             .where(~mask)               # lower triangle only
+             .stack()
+             .sort_values(ascending=False)
+             .head(5)
+             .reset_index()
+             .rename(columns={
+                 "level_0": "Feature 1",
+                 "level_1": "Feature 2",
+                 0: "|r|"
+             })
+             .round(2)
     )
-    st.markdown("**Top-5 continuous correlations**")
+    st.markdown("**Top-5 strongest correlations**")
     st.dataframe(top5)
-
 
 # =====================================================================
 # 2. CLASSIFICATION TAB
