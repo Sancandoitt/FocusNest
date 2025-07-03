@@ -8,3 +8,4 @@ seaborn
 plotly
 openpyxl
 networkx
+statsmodels
