@@ -132,7 +132,15 @@ with tabs[1]:
 
     # Data prep
     X = get_numeric_df(df)
-    y = df["willingness_to_subscribe"].map({"no": 0, "maybe": 1, "yes": 2})
+   y = (
+    df["willingness_to_subscribe"]
+    .astype(str).str.strip().str.lower()          # tidy the text
+    .map({"no": 0, "maybe": 1, "yes": 2})
+)
+mask = y.notna()
+X = X.loc[mask]
+y = y.loc[mask]
+
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.3, stratify=y, random_state=42
     )
