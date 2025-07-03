@@ -151,11 +151,11 @@ with tabs[1]:
         cm = confusion_matrix(y_test, models[choice].predict(X_test))
         st.write(cm)
 
-    if st.checkbox("Show Decision-Tree (first 2 levels)"):
-        fig, ax = plt.subplots(figsize=(6, 4))
-        plot_tree(models["Decision Tree"], max_depth=2,
-                  feature_names=X.columns, filled=True, ax=ax, fontsize=6)
-        st.pyplot(fig)
+     if st.checkbox("Show Decision-Tree (first 2 levels)"):
+         fig, ax = plt.subplots(figsize=(6, 4))
+         plot_tree(models["Decision Tree"], max_depth=2,
+                   feature_names=X.columns, filled=True, ax=ax, fontsize=6)
+         st.pyplot(fig)
 
 # =======================================================================
 # 3. CLUSTERING TAB  (scatter & elbow – taught methods)
