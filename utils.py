@@ -18,5 +18,6 @@ import streamlit as st
 def load_data(path):
     return pd.read_excel(path)
 
-def get_numeric_df(df):
+def get_numeric_df(df: pd.DataFrame) -> pd.DataFrame:
+    """Return every numeric column—no hard-coded list."""
     return df.select_dtypes("number")
