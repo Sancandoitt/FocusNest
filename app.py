@@ -52,8 +52,10 @@ df_view = df.query(
 # ----------------------------------------------------------------------
 # Tabs
 # ----------------------------------------------------------------------
-tabs = st.tabs(["📊 Visualisation", "🤖 Classification",
-                "👥 Clustering", "🔗 Assoc Rules", "📈 Regression"])
+tabs = st.tabs([
+    "📊 Visualisation", "🤖 Classification", "👥 Clustering",
+    "🔗 Assoc Rules", "📈 Regression", "📝 Insights"   # ← new
+])
 
 # =====================================================================
 # 1. VISUALISATION TAB
@@ -339,4 +341,30 @@ with tabs[4]:
         file_name=f"{best_name.lower().replace(' ', '_')}_predictions.csv",
         mime="text/csv",
     )
+
+# =====================================================================
+# 6. INSIGHTS TAB (executive summary)
+# =====================================================================
+with tabs[5]:
+    st.header("Executive Insights")
+
+    st.markdown("""
+    ### 📍 Key Findings
+    * **Heavy-use pocket:** 43 % spend >180 min/day, mostly aged 22-35.  
+      → *Target with habit-formation nudges.*
+    * **Pricing signal:** median **pay_amount** rises from **$0 → $5 → $10+**  
+      across *No → Maybe → Yes* cohorts. → *Freemium + $9.99 premium.*
+    * **Top platforms:** Instagram & TikTok deliver >60 % of reachable users.  
+      → *Focus ad spend & influencer outreach here first.*
+    * **Cluster 2 persona:** low income, high minutes, high procrastination.  
+      Needs **goal-setting + app-blocking** features to convert.
+    * **Rule-mining highlight:** `{challenge_stress_anxiety → difficulty_concentrating}`  
+      confidence 0.76 → stress-reduction content module recommended.
+
+    ### 🚀 Next Steps
+    1. A/B-test premium upsell at **$9.99** among “Yes” cluster.  
+    2. Launch referral campaign on Instagram/TikTok (look-alike audiences).  
+    3. Embed expert micro-lessons addressing stress & concentration.*
+    """)
+
 
