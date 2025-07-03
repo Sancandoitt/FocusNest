@@ -416,9 +416,22 @@ with tabs[4]:
     st.plotly_chart(fig, use_container_width=True)
 
 
+    # ---------- Residual plot ----------
+    resid_df = pd.DataFrame({
+        "Predicted": best_pred,
+        "Residual":  yreg.values - best_pred
+    }).dropna()
+
     fig, ax = plt.subplots()
-    sns.residplot(x=best_pred, y=yreg - best_pred,
-                  color="#bca43a", ax=ax)
+    sns.residplot(
+        data=resid_df,
+        x="Predicted", y="Residual",
+        lowess=True, color="#bca43a", ax=ax
+    )
+    ax.set_xlabel("Predicted")
+    ax.set_ylabel("Residuals")
+    st.pyplot(fig)
+
     ax.set_xlabel("Predicted"); ax.set_ylabel("Residuals")
     st.pyplot(fig)
     st.caption("Residual plot checks bias/heteroscedasticity.")
