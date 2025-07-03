@@ -43,19 +43,20 @@ tabs = st.tabs(["Visualization","Classification","Clustering","Assoc Rules","Reg
 # Visualization
 with tabs[0]:
     st.header("Data Visualization")
-    # ----- KPI cards -----
-kpi1, kpi2, kpi3 = st.columns(3)
-
-avg_minutes = df_view["Daily_Minutes_Spent"].mean()
-heavy_pct = (df_view["Daily_Minutes_Spent"] > 180).mean() * 100
-avg_income = df_view["Monthly_Income"].mean()
-
-kpi1.metric("Avg Daily Minutes", f"{avg_minutes:,.1f}")
-kpi2.metric("% Heavy Users (>180 min)", f"{heavy_pct:.1f}%")
-kpi3.metric("Avg Monthly Income", f"${avg_income:,.0f}")
-
     sns.set_style("whitegrid")
 
+    # ----- KPI cards -----
+    kpi1, kpi2, kpi3 = st.columns(3)
+
+    avg_minutes = df_view["Daily_Minutes_Spent"].mean()
+    heavy_pct   = (df_view["Daily_Minutes_Spent"] > 180).mean() * 100
+    avg_income  = df_view["Monthly_Income"].mean()
+
+    kpi1.metric("Avg Daily Minutes",          f"{avg_minutes:,.1f}")
+    kpi2.metric("% Heavy Users (>180 min)",   f"{heavy_pct:.1f}%")
+    kpi3.metric("Avg Monthly Income",         f"${avg_income:,.0f}")
+
+    # ----- Two main plots -----
     col1, col2 = st.columns(2)
 
     with col1:
@@ -74,20 +75,24 @@ kpi3.metric("Avg Monthly Income", f"${avg_income:,.0f}")
         sns.kdeplot(df_view["Daily_Minutes_Spent"], ax=ax, shade=True)
         st.pyplot(fig)
 
+    # ----- Data preview -----
     st.dataframe(df_view.head())
-st.markdown("#### Income vs. Minutes Spent Density")
-fig = px.density_heatmap(
-    df_view,
-    x="Daily_Minutes_Spent",
-    y="Monthly_Income",
-    nbinsx=30,
-    nbinsy=30,
-    color_continuous_scale="YlOrBr"
-)
-st.plotly_chart(fig, use_container_width=True)
-st.caption("Heavier social-media users cluster between 50–250 minutes and <$2 000 income, with a small high-income heavy-use pocket (potential premium segment).")
 
-
+    # ----- Income vs Minutes density -----
+    st.markdown("#### Income vs Minutes Spent Density")
+    fig = px.density_heatmap(
+        df_view,
+        x="Daily_Minutes_Spent",
+        y="Monthly_Income",
+        nbinsx=30,
+        nbinsy=30,
+        color_continuous_scale="YlOrBr"
+    )
+    st.plotly_chart(fig, use_container_width=True)
+    st.caption(
+        "Heavier social-media users cluster between **50–250 minutes/day** "
+        "and **≤ $2 000 income**, with a small high-income heavy-use pocket."
+    )
 # Classification
 with tabs[1]:
     st.header("Classification")
