@@ -259,18 +259,17 @@ with tabs[3]:
 
 
 # =======================================================================
-# 5. REGRESSION TAB  +  Decision-Tree hyper-parameter tuning
+# 5. REGRESSION TAB  (Linear · Ridge · Lasso · Decision-Tree)
 # =======================================================================
 with tabs[4]:
     st.header("Regression Models")
 
     # ---------- choose target ----------
-target_choices = [
-    "pay_amount",
-    "daily_minutes_spent",
-    "sleep_quality"   # ← use the exact name you just saw
-]
-
+    target_choices = [
+        "pay_amount",
+        "daily_minutes_spent",
+        "sleep_quality"        # use the exact tidy name you saw in DEBUG
+    ]
     target = st.selectbox("Select target variable", target_choices)
 
     # ---------- feature matrix ----------
