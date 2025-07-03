@@ -116,10 +116,12 @@ with tabs[0]:
     st.plotly_chart(fig, use_container_width=True)
 
     # ----- Correlation clustermap (continuous vars) -------------------
-cont_cols = [
-    c for c in df_view.select_dtypes("number").columns
-    if df_view[c].nunique() > 3     # was >10
-]
+    # keep numeric columns that have at least 4 distinct values
+    cont_cols = [
+        c for c in df_view.select_dtypes("number").columns
+        if df_view[c].nunique() > 3      # threshold lowered from >10
+    ]
+
 
     corr = df_view[cont_cols].corr()
 
