@@ -566,7 +566,7 @@ else:
 st.markdown(f"""
 ### 🚀 Next Steps
 1. {price_line}
-2. Focus acquisition on **{top3.index[0].title()} / {top3.index[1].title()}** – they cover most of the audience.
+2. Focus acquisition on **{top3.index[0].title()} / {top3.index[1].title()}** - they cover most of the audience.
 3. Build habit-formation module for Cluster {top_cluster} (heavy use, lower income).
 4. Incorporate content addressing the *{max_pair[1].replace('_',' ')}* driver identified.
 """)
