@@ -265,11 +265,11 @@ with tabs[4]:
     st.header("Regression Models")
 
     # ---------- choose target ----------
-    target_choices = [
-        "pay_amount",
-        "daily_minutes_spent",
-        "sleep_quality"          # new target
-    ]
+target_choices = [
+    "pay_amount",
+    "daily_minutes_spent",
+    "sleep_quality"   # ← use the exact name you just saw
+]
 
     target = st.selectbox("Select target variable", target_choices)
 
