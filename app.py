@@ -120,9 +120,17 @@ with tabs[0]:
 # =======================================================================
 with tabs[1]:
     st.header("Classification")
-    # ---------- Hyper-parameter sliders ----------
+       # ---------- Hyper-parameter sliders ----------
     k_val = st.slider("K for KNN", 3, 15, 5, step=2)
     tree_depth = st.slider("Max depth for Decision Tree", 2, 10, 3)
+
+    # ---------- model objects (use slider values) ----------
+    models = {
+        "KNN": KNeighborsClassifier(n_neighbors=k_val),
+        "Decision Tree": DecisionTreeClassifier(max_depth=tree_depth, random_state=42),
+        "Random Forest": RandomForestClassifier(random_state=42),
+        "GBRT": GradientBoostingClassifier(random_state=42),
+    }
 
     # ---------- data prep ----------
     X = get_numeric_df(df)
