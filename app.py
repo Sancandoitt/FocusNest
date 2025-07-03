@@ -30,29 +30,8 @@ st.sidebar.title("FocusNest")
 st.sidebar.write("Build Better Habits. Break the Social Cycle.")
 
 # ----------------------------------------------------------------------
-# ---------------------------------------------------------------
-# 📂 Data source – built-in sample  OR  user upload
-# ---------------------------------------------------------------
-DATA_PATH = "data/Dataset_for_Business_AssociationRuleReady.xlsx"   # keep your original file
-
-uploaded = st.sidebar.file_uploader(
-    "Upload CSV / Excel", type=["csv", "xlsx"],
-    help="If blank, the dashboard uses the default FocusNest dataset."
-)
-
-@st.cache_data(show_spinner=False)
-def read_data(file) -> pd.DataFrame:
-    """Return a tidy DataFrame from either the sample file or an upload."""
-    if file is None:                              # built-in sample
-        df_ = load_data(DATA_PATH)
-    elif file.name.endswith(".csv"):
-        df_ = pd.read_csv(file)
-    else:                                         # .xlsx
-        df_ = pd.read_excel(file)
-    return tidy_column_names(df_)                 # unify column names
-
-df = read_data(uploaded)                          # <<< global DataFrame
-
+DATA_PATH = "data/Dataset_for_Business_AssociationRuleReady.xlsx"
+df = load_data(DATA_PATH)
 # ----------------------------------------------------------------------
 # Sidebar global filters
 # ----------------------------------------------------------------------
