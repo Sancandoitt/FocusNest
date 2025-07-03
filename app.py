@@ -343,47 +343,74 @@ with tabs[4]:
     )
 
 # =====================================================================
-# 6. INSIGHTS TAB (executive summary – auto-generated)
+# 6. INSIGHTS TAB  —  auto-generated executive summary
 # =====================================================================
 with tabs[5]:
     st.header("Executive Insights")
 
-    # ---------- live KPIs pulled from df_view ----------
+    # ---------- 1. Heavy-use share ----------
     heavy_pct = (df_view["daily_minutes_spent"] > 180).mean() * 100
 
-    pay_med = (
+    # ---------- 2. Median pay per intent ----------
+    pay_meds = (
         df_view.groupby("willingness_to_subscribe")["pay_amount"]
         .median().round(2)
-    )  # keys: 'no', 'maybe', 'yes'
+    )  # keys may include 'no', 'maybe', 'yes'
 
+    # ---------- 3. Top-3 platforms ----------
     plat_cols = [c for c in df.columns if c.startswith("uses_")]
-    plat_counts = (
-        df_view[plat_cols].sum()
-        .rename(lambda c: c.replace("uses_", ""))
-        .sort_values(ascending=False)
-    )
-    top2 = plat_counts.head(2)
+    plat_counts = (df_view[plat_cols].sum()
+                   .rename(lambda c: c.replace("uses_", ""))
+                   .sort_values(ascending=False))
+    top3 = plat_counts.head(3)
 
-    # safest way to reference best R² (exists after Regression tab run)
+    # ---------- 4. Well-being tool adoption ----------
+    blocker_pct = (df_view["tried_app_blockers"] == 1).mean() * 100 \
+                  if "tried_app_blockers" in df_view else np.nan
+    prodapp_pct = (df_view["tried_productivity_apps"] == 1).mean() * 100 \
+                  if "tried_productivity_apps" in df_view else np.nan
+
+    # ---------- 5. Cluster persona ----------
+    if "cluster" not in df.columns:          # ensure clusters exist
+        km_ins = KMeans(n_clusters=4, random_state=42).fit(get_numeric_df(df))
+        df["cluster"] = km_ins.labels_
+    cluster_counts = df["cluster"].value_counts()
+    top_cluster = int(cluster_counts.idxmax())
+    cluster_profile = (df.groupby("cluster")
+                         [["daily_minutes_spent", "monthly_income"]]
+                         .mean().loc[top_cluster])
+
+    # ---------- 6. Strongest numeric correlation ----------
+    corr = df_view.select_dtypes("number").corr().abs()
+    np.fill_diagonal(corr.values, 0)
+    max_pair = corr.stack().idxmax()
+    max_val  = corr.stack().max()
+
+    # ---------- 7. Best regression R² ----------
     best_r2 = None
-    if "results" in globals():
+    best_target = None
+    if "results" in globals():                      # from Regression tab
+        best_target = st.session_state.get("reg_target", "pay_amount")
         best_r2 = max(results.values(), key=lambda x: x["R²"])["R²"]
 
-    # ---------- markdown summary ----------
+    # ---------- Markdown summary ----------
     st.markdown(f"""
-### 📍 Key Findings (live)
+### 📍 Key Findings (live data)
 
-* **Heavy-use pocket:** **{heavy_pct:.1f} %** of this slice spend > 180 min/day  
-  → *prime target for habit-formation nudges.*
-* **Median pay (USD):** No = ${pay_med.get('no',0)}, Maybe = ${pay_med.get('maybe',0)}, Yes = ${pay_med.get('yes',0)}  
-  → *price freemium tier near ${pay_med.get('yes',0)}.*
-* **Top platforms:** {top2.index[0].title()} & {top2.index[1].title()} (together {top2.sum()} users)  
-  → *focus ad spend & influencer outreach here first.*
-* **Best regression R²:** {best_r2:.3f}  (see Regression tab)  
-  → *current features explain revenue/engagement moderately well.*
+* **Heavy-use pocket:** **{heavy_pct:.1f} %** spend > 180 min/day.
+* **Median pay (USD):** No = ${pay_meds.get('no',0)}, Maybe = ${pay_meds.get('maybe',0)}, Yes = ${pay_meds.get('yes',0)}.
+* **Top platforms:** {', '.join(f"{n.title()} ({c})" for n, c in top3.items())}.
+* **Well-being adoption:** {blocker_pct:.1f} % tried app-blockers; {prodapp_pct:.1f} % tried productivity apps.
+* **Largest persona – Cluster {top_cluster}:** avg minutes {cluster_profile['daily_minutes_spent']:.0f}, income ${cluster_profile['monthly_income']:.0f} (size {cluster_counts.max()}).
+* **Strongest correlation:** {max_pair[0]} ↔ {max_pair[1]} (|r| = {max_val:.2f}).
+* **Best regression R²:** {best_r2:.3f} on target **{best_target}** *(see Regression tab)*.
+""")
 
+    st.markdown(f"""
 ### 🚀 Next Steps
-1. A/B-test premium upsell at **${pay_med.get('yes',0)}** among “Yes” cohort.  
-2. Launch referral campaign on **{top2.index[0].title()} / {top2.index[1].title()}**.  
-3. Add content modules tackling stress & concentration challenges.
+
+1. Launch premium upsell around **${pay_meds.get('yes',0)}** to the “Yes” cohort.
+2. Focus acquisition on **{top3.index[0].title()} / {top3.index[1].title()}** – they cover most of the audience.
+3. Build habit-formation module for Cluster {top_cluster} (heavy use, lower income).
+4. Incorporate content addressing the *{max_pair[1].replace('_',' ')}* driver identified.
 """)
