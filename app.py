@@ -391,8 +391,7 @@ with tabs[4]:
         chart_df = pd.DataFrame(preds, index=["Prediction"]).T
         st.bar_chart(chart_df)
 
-
-    best_name = max(results, key=lambda k: results[k]["R²"])
+ best_name = max(results, key=lambda k: results[k]["R²"])
     best_pred = preds[best_name]
     st.markdown(f"##### Best model: **{best_name}**")
 
@@ -400,6 +399,9 @@ with tabs[4]:
                      labels={"x": "Actual", "y": "Predicted"},
                      title=f"Actual vs Predicted — {best_name}",
                      color_discrete_sequence=["#bca43a"])
+    fig.add_shape(type="line", x0=yreg.min(), x1=yreg.max(),
+                  y0=yreg.min(), y1=yreg.max(),
+                  line=dict(dash="dash", color="#7e7309"))
     fig.add_shape(type="line", x0=yreg.min(), x1=yreg.max(),
                   y0=yreg.min(), y1=yreg.max(),
                   line=dict(dash="dash", color="#7e7309"))
