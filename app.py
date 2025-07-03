@@ -391,21 +391,30 @@ with tabs[4]:
         chart_df = pd.DataFrame(preds, index=["Prediction"]).T
         st.bar_chart(chart_df)
 
- best_name = max(results, key=lambda k: results[k]["R²"])
+    # ---------- Scatter: Actual vs Predicted for best model ----------
+    best_name = max(results, key=lambda k: results[k]["R²"])
     best_pred = preds[best_name]
-    st.markdown(f"##### Best model: **{best_name}**")
 
-    fig = px.scatter(x=yreg, y=best_pred,
-                     labels={"x": "Actual", "y": "Predicted"},
-                     title=f"Actual vs Predicted — {best_name}",
-                     color_discrete_sequence=["#bca43a"])
-    fig.add_shape(type="line", x0=yreg.min(), x1=yreg.max(),
-                  y0=yreg.min(), y1=yreg.max(),
-                  line=dict(dash="dash", color="#7e7309"))
-    fig.add_shape(type="line", x0=yreg.min(), x1=yreg.max(),
-                  y0=yreg.min(), y1=yreg.max(),
-                  line=dict(dash="dash", color="#7e7309"))
+    # build DataFrame, drop NaNs so x- and y-lengths match
+    scatter_df = pd.DataFrame({
+        "Actual":    yreg.values,
+        "Predicted": best_pred
+    }).dropna()
+
+    fig = px.scatter(
+        scatter_df, x="Actual", y="Predicted",
+        labels={"Actual": "Actual", "Predicted": "Predicted"},
+        title=f"Actual vs Predicted — {best_name}",
+        color_discrete_sequence=["#bca43a"]
+    )
+    fig.add_shape(
+        type="line",
+        x0=scatter_df["Actual"].min(),  x1=scatter_df["Actual"].max(),
+        y0=scatter_df["Actual"].min(),  y1=scatter_df["Actual"].max(),
+        line=dict(dash="dash", color="#7e7309")
+    )
     st.plotly_chart(fig, use_container_width=True)
+
 
     fig, ax = plt.subplots()
     sns.residplot(x=best_pred, y=yreg - best_pred,
