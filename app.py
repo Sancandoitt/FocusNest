@@ -146,11 +146,25 @@ with tabs[0]:
     )
     st.pyplot(fig)
 
-    # Top-5 absolute correlations after heatmap (for quick reference)
+    # Correlation heatmap and top-5 correlations (all at same level)
+    st.markdown("#### Correlation Heat-map (continuous features)")
+
+    fig, ax = plt.subplots(figsize=(8, 6))
+    sns.heatmap(
+        corr,
+        cmap="YlOrBr",
+        annot=False,
+        ax=ax,
+        vmin=-1, vmax=1,
+        linewidths=0.3,
+        cbar_kws={'label': 'Correlation'}
+    )
+    st.pyplot(fig)
+
     mask = np.triu(np.ones_like(corr, dtype=bool))
     top5 = (
         corr.abs()
-             .where(~mask)               # lower triangle only
+             .where(~mask)
              .stack()
              .sort_values(ascending=False)
              .head(5)
