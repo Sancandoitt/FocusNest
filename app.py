@@ -155,6 +155,21 @@ st.pyplot(fig)
 
 
     # Top-5 absolute correlations after clustering (for quick reference)
+    st.markdown("#### Correlation Heat-map (continuous features)")
+
+    fig, ax = plt.subplots(figsize=(8, 6))
+    sns.heatmap(
+        corr,
+        cmap="YlOrBr",
+        annot=False,
+        ax=ax,
+        vmin=-1, vmax=1,
+        linewidths=0.3,
+        cbar_kws={'label': 'Correlation'}
+    )
+    st.pyplot(fig)
+
+    # Top-5 absolute correlations after heatmap (for quick reference)
     mask = np.triu(np.ones_like(corr, dtype=bool))
     top5 = (
         corr.abs()
@@ -172,6 +187,7 @@ st.pyplot(fig)
     )
     st.markdown("**Top-5 strongest correlations**")
     st.dataframe(top5)
+
 
 # =====================================================================
 # 2. CLASSIFICATION TAB
