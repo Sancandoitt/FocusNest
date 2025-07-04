@@ -146,7 +146,10 @@ with tabs[0]:
     )
     st.pyplot(fig)
 
-    # Correlation heatmap and top-5 correlations (all at same level)
+    # Build the correlation matrix first!
+    numeric_cols = df_view.select_dtypes("number").columns
+    corr = df_view[numeric_cols].corr()
+
     st.markdown("#### Correlation Heat-map (continuous features)")
 
     fig, ax = plt.subplots(figsize=(8, 6))
