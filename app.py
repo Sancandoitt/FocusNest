@@ -139,21 +139,20 @@ with tabs[0]:
         if df_view[c].nunique() > 3      # threshold lowered from >10
     ]
 
+st.markdown("#### Correlation Heat-map (continuous features)")
 
-    corr = df_view[cont_cols].corr()
+fig, ax = plt.subplots(figsize=(8, 6))
+sns.heatmap(
+    corr, 
+    cmap="YlOrBr", 
+    annot=False, 
+    ax=ax, 
+    vmin=-1, vmax=1, 
+    linewidths=0.3, 
+    cbar_kws={'label': 'Correlation'}
+)
+st.pyplot(fig)
 
-    st.markdown("#### Correlation Clustermap (continuous features)")
-    # seaborn.clustermap returns its own figure; we pass it to Streamlit
-    cg = sns.clustermap(
-        corr,
-        cmap="YlOrBr",
-        vmin=-1, vmax=1,
-        linewidths=.4,
-        figsize=(6, 6),
-        dendrogram_ratio=.1,           # shrink dendrograms
-        cbar_pos=(0.02, .8, .03, .18)  # left, bottom, width, height
-    )
-    st.pyplot(cg.fig)
 
     # Top-5 absolute correlations after clustering (for quick reference)
     mask = np.triu(np.ones_like(corr, dtype=bool))
