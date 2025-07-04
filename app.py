@@ -132,29 +132,6 @@ with tabs[0]:
                  labels={"x": "Platform", "y": "Users"})
     st.plotly_chart(fig, use_container_width=True)
 
-    # ----- Correlation clustermap (continuous vars) -------------------
-    # keep numeric columns that have at least 4 distinct values
-    cont_cols = [
-        c for c in df_view.select_dtypes("number").columns
-        if df_view[c].nunique() > 3      # threshold lowered from >10
-    ]
-
-st.markdown("#### Correlation Heat-map (continuous features)")
-
-fig, ax = plt.subplots(figsize=(8, 6))
-sns.heatmap(
-    corr, 
-    cmap="YlOrBr", 
-    annot=False, 
-    ax=ax, 
-    vmin=-1, vmax=1, 
-    linewidths=0.3, 
-    cbar_kws={'label': 'Correlation'}
-)
-st.pyplot(fig)
-
-
-    # Top-5 absolute correlations after clustering (for quick reference)
     st.markdown("#### Correlation Heat-map (continuous features)")
 
     fig, ax = plt.subplots(figsize=(8, 6))
