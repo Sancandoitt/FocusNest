@@ -132,20 +132,6 @@ with tabs[0]:
                  labels={"x": "Platform", "y": "Users"})
     st.plotly_chart(fig, use_container_width=True)
 
-    st.markdown("#### Correlation Heat-map (continuous features)")
-
-    fig, ax = plt.subplots(figsize=(8, 6))
-    sns.heatmap(
-        corr,
-        cmap="YlOrBr",
-        annot=False,
-        ax=ax,
-        vmin=-1, vmax=1,
-        linewidths=0.3,
-        cbar_kws={'label': 'Correlation'}
-    )
-    st.pyplot(fig)
-
     # Build the correlation matrix first!
     numeric_cols = df_view.select_dtypes("number").columns
     corr = df_view[numeric_cols].corr()
