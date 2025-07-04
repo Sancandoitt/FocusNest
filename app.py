@@ -554,7 +554,7 @@ with tabs[5]:
 
     # ---------- Markdown summary ----------
     st.markdown(f"""
-### 📍 Key Findings (live data)
+### Key Findings (live data)
 
 * **Heavy-use pocket:** **{heavy_pct:.1f} %** spend > 180 min/day.
 * **Median pay (USD):** No = ${pay_meds.get('no',0)}, Maybe = ${pay_meds.get('maybe',0)}, Yes = ${pay_meds.get('yes',0)}.
@@ -576,7 +576,7 @@ with tabs[5]:
         )
 
     st.markdown(f"""
-    ### 🚀 Next Steps
+    ### Next Steps
     1. {price_line}
     2. Focus acquisition on **{top3.index[0].title()} / {top3.index[1].title()}** – they cover most of the audience.
     3. Build habit-formation module for Cluster {top_cluster} (heavy use, lower income).
